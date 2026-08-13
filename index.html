@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic Foresight — Scout · Validator · Synthese</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230f172a' stroke='%235eead4' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='26' fill='none' stroke='%235eead4' stroke-width='2' opacity='.5'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%235eead4'/%3E%3Cline x1='50' y1='50' x2='86' y2='22' stroke='%23fbbf24' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b1120; --card:#0f172a; --card2:#111c33; --border:#1e293b; --border2:#2b3b55;
+    --text:#e2e8f0; --muted:#94a3b8; --accent:#5eead4; --accent-dim:#134e4a;
+    --amber:#fbbf24; --red:#f87171; --green:#4ade80; --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(94,234,212,.09),transparent);}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 6px}
+  header .logo{width:46px;height:46px;flex:none}
+  header h1{font-size:1.7rem;margin:0;letter-spacing:.3px}
+  header .sub{width:100%;color:var(--muted);margin:0}
+  .langswitch{margin-left:auto;display:flex;border:1px solid var(--border2);border-radius:9px;overflow:hidden}
+  .langswitch button{background:transparent;color:var(--muted);border:0;padding:7px 14px;cursor:pointer;font-weight:600}
+  .langswitch button.on{background:var(--accent);color:#042f2e}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin:18px 0}
+  details.card{padding:0}
+  details.card summary{cursor:pointer;padding:16px 24px;font-weight:600;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px}
+  details.card summary::before{content:'▸';transition:transform .15s}
+  details.card[open] summary::before{transform:rotate(90deg)}
+  details.card .inner{padding:0 24px 20px;color:var(--muted)}
+  details.card .inner b{color:var(--text)}
+  details.card .inner ol{padding-left:22px;margin:8px 0}
+  details.card .inner li{margin:7px 0}
+  label{display:block;font-weight:600;margin:16px 0 6px}
+  label .opt{font-weight:400;color:var(--muted)}
+  input[type=text],textarea,select{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border2);
+    border-radius:9px;padding:11px 13px;font:inherit}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent-dim);border-color:var(--accent)}
+  textarea{resize:vertical;min-height:60px}
+  .row{display:flex;gap:18px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:220px}
+  .check{display:flex;align-items:flex-start;gap:10px;margin-top:18px;cursor:pointer;font-weight:400}
+  .check input{width:18px;height:18px;margin-top:4px;accent-color:var(--accent)}
+  .check small{display:block;color:var(--muted)}
+  .btn{background:var(--accent);color:#042f2e;border:0;border-radius:10px;padding:13px 26px;font:inherit;font-weight:700;
+    cursor:pointer;margin-top:20px}
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent-dim)}
+  .btn.small{padding:8px 16px;font-size:.9rem;margin-top:0}
+  .hint{color:var(--muted);font-size:.87rem;margin-top:10px}
+  /* pipeline */
+  .phase{position:relative;border:1px solid var(--border);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .phase .head{display:flex;align-items:center;gap:12px;padding:15px 20px;border-bottom:1px solid transparent}
+  .phase.active .head,.phase.done .head,.phase.error .head{border-bottom-color:var(--border)}
+  .pnum{width:34px;height:34px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:700;background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:.85rem}
+  .phase.active .pnum{border-color:var(--accent);color:var(--accent)}
+  .phase.done .pnum{background:var(--accent);border-color:var(--accent);color:#042f2e}
+  .phase.error .pnum{border-color:var(--red);color:var(--red)}
+  .ptitle{font-weight:700}
+  .pdesc{color:var(--muted);font-size:.85rem}
+  .chip{margin-left:auto;font-size:.76rem;font-weight:700;padding:4px 11px;border-radius:20px;background:var(--card2);
+    color:var(--muted);border:1px solid var(--border2);white-space:nowrap}
+  .phase.active .chip{color:var(--amber);border-color:var(--amber)}
+  .phase.done .chip{color:var(--green);border-color:var(--green)}
+  .phase.error .chip{color:var(--red);border-color:var(--red)}
+  .pbody{padding:16px 20px;display:none}
+  .phase.active .pbody,.phase.done .pbody,.phase.error .pbody{display:block}
+  .activity{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-bottom:10px}
+  .activity div{padding:2px 0}
+  .activity .q{color:var(--accent)}
+  .stream{background:#0a0f1d;border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-family:var(--mono);
+    font-size:.78rem;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow-y:auto;color:#7dd3c8}
+  .stream.collapsed{display:none}
+  .toggleraw{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.8rem;padding:4px 0;text-decoration:underline}
+  .errbox{background:rgba(248,113,113,.09);border:1px solid var(--red);border-radius:9px;padding:12px 15px;color:#fecaca;margin-top:10px}
+  /* signals */
+  .signal{border:1px solid var(--border2);border-radius:11px;padding:13px 16px;margin:10px 0;background:var(--card2)}
+  .signal .top{display:flex;gap:10px;align-items:flex-start}
+  .signal input[type=checkbox]{width:17px;height:17px;margin-top:4px;accent-color:var(--accent);flex:none}
+  .signal h4{margin:0;font-size:.98rem}
+  .signal p{margin:6px 0 4px;color:var(--muted);font-size:.9rem}
+  .signal .meta{font-size:.8rem;color:var(--muted)}
+  .signal .meta a{color:var(--accent)}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:12px;margin-left:8px;vertical-align:2px}
+  .badge.type{background:var(--accent-dim);color:var(--accent)}
+  .badge.VERIFIED{background:rgba(74,222,128,.15);color:var(--green);border:1px solid var(--green)}
+  .badge.REJECTED{background:rgba(248,113,113,.13);color:var(--red);border:1px solid var(--red)}
+  .badge.ESCALATE{background:rgba(251,191,36,.13);color:var(--amber);border:1px solid var(--amber)}
+  .confbar{height:5px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+  .confbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green))}
+  .verdict-reason{font-size:.84rem;color:var(--muted);margin-top:7px;border-left:3px solid var(--border2);padding-left:10px}
+  .rejected-sig{opacity:.55}
+  .hitl{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.4);border-radius:11px;padding:14px 17px;margin-top:14px}
+  .hitl b{color:var(--amber)}
+  /* report */
+  .report h2{color:var(--accent);font-size:1.15rem;margin:26px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+  .report h3{font-size:1rem;margin:18px 0 8px}
+  .report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.88rem;display:block;overflow-x:auto}
+  .report th,.report td{border:1px solid var(--border2);padding:7px 11px;text-align:left;vertical-align:top}
+  .report th{background:var(--card2);color:var(--accent)}
+  .report a{color:var(--accent)}
+  .report code{background:var(--card2);padding:1px 6px;border-radius:5px;font-size:.85em}
+  .report ul,.report ol{padding-left:24px}
+  .report li{margin:4px 0}
+  .report hr{border:0;border-top:1px solid var(--border);margin:20px 0}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+  footer{color:var(--muted);font-size:.82rem;margin-top:44px;border-top:1px solid var(--border);padding-top:18px}
+  footer a{color:var(--accent)}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--amber);border-top-color:transparent;border-radius:50%;
+    animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#0f172a" stroke="#5eead4" stroke-width="4"/><circle cx="50" cy="50" r="26" fill="none" stroke="#5eead4" stroke-width="2" opacity=".5"/><circle cx="50" cy="50" r="8" fill="#5eead4"/><line x1="50" y1="50" x2="86" y2="22" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/></svg>
+    <h1>Agentic Foresight</h1>
+    <div class="langswitch">
+      <button id="lang-de" class="on" onclick="setLang('de')">DE</button>
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+    <p class="sub" data-i18n="subtitle"></p>
+  </header>
+
+  <details class="card" id="howto">
+    <summary data-i18n="howTitle"></summary>
+    <div class="inner" id="howBody"></div>
+  </details>
+
+  <div class="card" id="formCard">
+    <label for="topic"><span data-i18n="topicLabel"></span></label>
+    <input type="text" id="topic" maxlength="300">
+    <label for="focus"><span data-i18n="focusLabel"></span> <span class="opt" data-i18n="optional"></span></label>
+    <textarea id="focus" maxlength="1000"></textarea>
+    <div class="row">
+      <div>
+        <label for="depth" data-i18n="depthLabel"></label>
+        <select id="depth">
+          <option value="standard" data-i18n="depthStd"></option>
+          <option value="deep" data-i18n="depthDeep"></option>
+        </select>
+      </div>
+      <div>
+        <label class="check" style="margin-top:38px">
+          <input type="checkbox" id="hitl" checked>
+          <span><span data-i18n="hitlLabel"></span><small data-i18n="hitlHint"></small></span>
+        </label>
+      </div>
+    </div>
+    <button class="btn" id="startBtn" onclick="startResearch()" data-i18n="startBtn"></button>
+    <div class="hint" data-i18n="timeHint"></div>
+  </div>
+
+  <div id="pipeline" style="display:none">
+    <div class="phase" id="phase-scout">
+      <div class="head">
+        <div class="pnum">P1</div>
+        <div><div class="ptitle" data-i18n="scoutTitle"></div><div class="pdesc" data-i18n="scoutDesc"></div></div>
+        <div class="chip" id="chip-scout"></div>
+      </div>
+      <div class="pbody">
+        <div class="activity" id="act-scout"></div>
+        <button class="toggleraw" id="raw-btn-scout" style="display:none" onclick="toggleRaw('scout')"></button>
+        <div class="stream" id="stream-scout"></div>
+        <div id="out-scout"></div>
+        <div id="gate-scout"></div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase-validator">
+      <div class="head">
+        <div class="pnum">P2</div>
+        <div><div class="ptitle" data-i18n="validatorTitle"></div><div class="pdesc" data-i18n="validatorDesc"></div></div>
+        <div class="chip" id="chip-validator"></div>
+      </div>
+      <div class="pbody">
+        <div class="activity" id="act-validator"></div>
+        <button class="toggleraw" id="raw-btn-validator" style="display:none" onclick="toggleRaw('validator')"></button>
+        <div class="stream" id="stream-validator"></div>
+        <div id="out-validator"></div>
+        <div id="gate-validator"></div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase-synthesis">
+      <div class="head">
+        <div class="pnum">P3</div>
+        <div><div class="ptitle" data-i18n="synthesisTitle"></div><div class="pdesc" data-i18n="synthesisDesc"></div></div>
+        <div class="chip" id="chip-synthesis"></div>
+      </div>
+      <div class="pbody">
+        <div class="activity" id="act-synthesis"></div>
+        <button class="toggleraw" id="raw-btn-synthesis" style="display:none" onclick="toggleRaw('synthesis')"></button>
+        <div class="stream" id="stream-synthesis"></div>
+        <div class="report" id="out-synthesis"></div>
+        <div class="actions" id="reportActions" style="display:none">
+          <button class="btn small ghost" onclick="copyReport()" id="copyBtn" data-i18n="copyBtn"></button>
+          <button class="btn small ghost" onclick="downloadReport()" data-i18n="downloadBtn"></button>
+          <button class="btn small ghost" onclick="downloadPdf()" data-i18n="pdfBtn"></button>
+          <button class="btn small" onclick="resetAll()" data-i18n="newBtn"></button>
+          <div class="hint" style="flex-basis:100%;margin-top:0" data-i18n="pdfHint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+/* ---------------- i18n ---------------- */
+const I18N = {
+  de: {
+    subtitle: "Agentische KI-Recherche für die strategische Vorausschau — zu Unternehmen, Branchen, Produkten oder Technologien.",
+    howTitle: "So funktioniert es",
+    howBody: `<p>Drei spezialisierte KI-Agenten arbeiten nacheinander an Ihrer Fragestellung und recherchieren dabei live im Web.</p>
+      <ol>
+        <li><b>P1 · Scout-Agent</b> — durchsucht das Web semantisch nach frühen Veränderungssignalen („Weak Signals“) zu Ihrem Suchfeld: Papers, Patente, Regulierung, Repositories, Marktdaten. Er passt seine Suchstrategie eigenständig an und priorisiert Primärquellen. Die Recherche läuft in mehreren kurzen Durchgängen mit je eigener Perspektive (Technologie &amp; Forschung, Markt &amp; Wettbewerb, bei „Tief“ zusätzlich Regulierung, Lieferketten &amp; Gesellschaft) — das hält jeden Aufruf sicher innerhalb des Zeitlimits und deckt zugleich mehr Blickwinkel ab.</li>
+        <li><b>P2 · Validator-Agent</b> — nimmt eine bewusst kritische Haltung ein: Er prüft jedes Signal per gezielter Gegenrecherche auf Existenz (Halluzinationskontrolle), Plausibilität, Quellenqualität und typische Bias-Muster. Ergebnis: <b>VERIFIED</b>, <b>REJECTED</b> oder <b>ESCALATE</b> (Graubereich 0,4–0,6 → menschliche Prüfung) mit Konfidenzwert.</li>
+        <li><b>P3 · Synthese-Agent</b> — verdichtet die validierten Signale zu einer strukturierten Entscheidungsgrundlage: thematische Cluster, PESTEL-Zuordnung, Impact-Matrix (Magnitude × Zeithorizont), Wechselwirkungen und Monitoring-Empfehlungen.</li>
+      </ol>
+      <p><b>Human-in-the-Loop:</b> Optional stoppt die Pipeline nach jeder Phase, damit Sie Signale sichten und einzelne abwählen können — genau wie im Paper beschrieben bleibt die menschliche Urteilskraft der zentrale Kontrollpunkt. Das Ergebnis ist eine heuristische Exploration, keine Prognose.</p>`,
+    topicLabel: "Strategisches Suchfeld",
+    topicPh: "z. B. „Festkörperbatterien“, „Wettbewerbsumfeld der Deutschen Bahn“, „Markt für Wärmepumpen in Europa“",
+    focusLabel: "Zusätzlicher Fokus / Kontext",
+    optional: "(optional)",
+    focusPh: "z. B. Perspektive eines mittelständischen Zulieferers; besonderes Interesse an Regulierung und Lieferketten",
+    depthLabel: "Recherchetiefe",
+    depthStd: "Standard (2 Scout-Durchgänge, ca. 6 Suchen)",
+    depthDeep: "Tief (3 Scout-Durchgänge, ca. 9 Suchen, dauert länger)",
+    hitlLabel: "Human-in-the-Loop: Zwischenstopps zur Prüfung",
+    hitlHint: "Pipeline pausiert nach Scout und Validator, damit Sie Signale prüfen und abwählen können.",
+    startBtn: "Foresight-Recherche starten",
+    timeHint: "Eine vollständige Recherche dauert ca. 2–4 Minuten. Jede Phase läuft in mehreren kurzen Durchgängen, damit kein Zeitlimit greift — Sie sehen jeden Schritt live.",
+    scoutTitle: "Scout-Agent",
+    scoutDesc: "Identifiziert frühe Veränderungssignale in Echtzeit-Webquellen",
+    validatorTitle: "Validator-Agent",
+    validatorDesc: "Prüft Existenz, Plausibilität, Quellenqualität und Biases",
+    synthesisTitle: "Synthese-Agent",
+    synthesisDesc: "Verdichtet validierte Signale zu Clustern, PESTEL-Mapping und Impact-Matrix",
+    stWaiting: "wartet", stRunning: "arbeitet …", stDone: "abgeschlossen", stError: "Fehler",
+    searching: "Websuche",
+    resultsFound: "Ergebnisse erhalten",
+    rawShow: "Roh-Ausgabe anzeigen", rawHide: "Roh-Ausgabe ausblenden",
+    signalsFound: n => `${n} Signale identifiziert. `,
+    hitlScout: "<b>Prüfpunkt:</b> Sichten Sie die Signale. Abgewählte Signale werden nicht weitergegeben.",
+    continueValidation: "Weiter zur Validierung →",
+    hitlValidator: "<b>Prüfpunkt:</b> Prüfen Sie die Bewertungen — insbesondere eskalierte Signale (Graubereich). REJECTED-Signale werden von der Synthese ausgeschlossen.",
+    continueSynthesis: "Weiter zur Synthese →",
+    escalated: n => `⚠ ${n} Signal(e) im Graubereich — zur menschlichen Prüfung eskaliert.`,
+    escalatedHint: "Die eskalierten Signale stehen in der Liste unten an erster Stelle (gelbes Badge).",
+    reviewTitle: "Bewertete Signale",
+    reviewHint: "Häkchen entfernen, um ein Signal von der Synthese auszuschließen. REJECTED-Signale sind bereits abgewählt.",
+    unmatched: "Zugehöriges Scout-Signal nicht gefunden.",
+    confidence: "Konfidenz",
+    copyBtn: "Bericht kopieren", copied: "Kopiert ✓",
+    downloadBtn: "Als Markdown herunterladen",
+    pdfBtn: "Als PDF herunterladen",
+    pdfHint: "„Als PDF herunterladen“ öffnet den Druckdialog — dort als Ziel „Als PDF speichern“ wählen.",
+    pdfSearchField: "Suchfeld",
+    pdfFocus: "Fokus",
+    pdfDepth: "Recherchetiefe",
+    pdfDepthStd: "Standard", pdfDepthDeep: "Tief",
+    pdfDate: "Datum",
+    pdfAppendix: "Anhang · Geprüfte Signale",
+    pdfColSignal: "Signal", pdfColSource: "Quelle", pdfColVerdict: "Bewertung",
+    pdfColConf: "Konfidenz", pdfColReason: "Begründung des Validators",
+    pdfDisclaimer: "Maschinell erzeugte, heuristische Exploration — keine Prognose. Die Interpretation im konkreten Geschäftskontext bleibt Aufgabe des Strategieteams.",
+    newBtn: "Neue Recherche",
+    retry: "Phase erneut versuchen",
+    errPrefix: "Fehler in dieser Phase: ",
+    batchInfo: (i,n) => `Prüfe Signal-Paket ${i}/${n} …`,
+    continueReport: n => `Bericht wird fortgesetzt (Teil ${n}) — die Antwortlänge eines einzelnen Aufrufs reicht nicht aus …`,
+    reportTruncated: "Der Bericht ist auch nach mehreren Fortsetzungen noch nicht vollständig abgeschlossen. Bitte die Phase erneut versuchen oder die Recherchetiefe reduzieren.",
+    scoutPartInfo: (i,n,label) => `Durchgang ${i}/${n}: ${label} …`,
+    partialKept: n => `${n} Signal(e) aus dem abgebrochenen Durchgang gesichert — sie bleiben beim erneuten Versuch erhalten.`,
+    missingVerdicts: n => `${n} Signal(e) konnten nicht bewertet werden — Phase erneut versuchen, um sie nachzuprüfen.`,
+    retryAuto: "Verbindung unterbrochen — automatischer zweiter Versuch …",
+    errNoConnection: "Die Recherche-Funktion war nicht erreichbar (Netzwerk- oder Verbindungsfehler). Bitte Internetverbindung prüfen und Phase erneut versuchen.",
+    errStreamCut: "Die Verbindung zur Recherche-Funktion wurde abgebrochen — meist das 60-Sekunden-Zeitlimit einer Netlify-Function. Bitte die Phase erneut versuchen: bereits abgeschlossene Durchgänge bleiben erhalten, es wird nur der offene Teil nachgeholt.",
+    errEmpty: "Der Agent hat keine Textantwort geliefert (leere Antwort). Bitte Phase erneut versuchen.",
+    parseWarn: "Hinweis: Die Ausgabe konnte nicht als strukturierte Signale gelesen werden — der Rohtext wird an die nächste Phase weitergereicht.",
+    noSignals: "Keine auswertbaren Signale übrig — Recherche mit anderem Suchfeld oder größerer Tiefe erneut versuchen.",
+    footer: `Umsetzung nach einer Idee von: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>KI-generierte Inhalte können Fehler enthalten. Ergebnisse sind heuristische Explorationen zur Hypothesenbildung — kein Ersatz für menschliche Urteilskraft und keine Entscheidungsautomation. Recherche läuft über die Netlify-native Anthropic-Schnittstelle (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:leo@twistersmanagementconsultingllc.com">leo@twistersmanagementconsultingllc.com</a>`,
+  },
+  en: {
+    subtitle: "Agentic AI research for strategic foresight — on companies, industries, products or technologies.",
+    howTitle: "How it works",
+    howBody: `<p>Three specialized AI agents work on your question in sequence, researching the live web as they go.</p>
+      <ol>
+        <li><b>P1 · Scout agent</b> — semantically scans the web for early indicators of change (“weak signals”) in your search field: papers, patents, regulation, repositories, market data. It adapts its search strategy autonomously and prioritizes primary sources. The research runs in several short passes, each with its own perspective (technology &amp; research, market &amp; competition, plus regulation, supply chains &amp; society in “Deep” mode) — keeping every call safely inside the time limit while covering more angles.</li>
+        <li><b>P2 · Validator agent</b> — takes a deliberately critical stance: it checks every signal via targeted counter-research for existence (hallucination control), plausibility, source quality and typical bias patterns. Result: <b>VERIFIED</b>, <b>REJECTED</b> or <b>ESCALATE</b> (gray zone 0.4–0.6 → human review) with a confidence score.</li>
+        <li><b>P3 · Synthesis agent</b> — condenses the validated signals into a structured decision basis: thematic clusters, PESTEL mapping, impact matrix (magnitude × time horizon), cross-impacts and monitoring recommendations.</li>
+      </ol>
+      <p><b>Human-in-the-loop:</b> Optionally the pipeline pauses after each phase so you can review signals and deselect individual ones — exactly as described in the paper, human judgment remains the central control point. The result is a heuristic exploration, not a forecast.</p>`,
+    topicLabel: "Strategic search field",
+    topicPh: "e.g. “solid-state batteries”, “competitive environment of Deutsche Bahn”, “European heat pump market”",
+    focusLabel: "Additional focus / context",
+    optional: "(optional)",
+    focusPh: "e.g. perspective of a mid-sized supplier; special interest in regulation and supply chains",
+    depthLabel: "Research depth",
+    depthStd: "Standard (2 scout passes, ~6 searches)",
+    depthDeep: "Deep (3 scout passes, ~9 searches, takes longer)",
+    hitlLabel: "Human-in-the-loop: review checkpoints",
+    hitlHint: "Pipeline pauses after Scout and Validator so you can review and deselect signals.",
+    startBtn: "Start foresight research",
+    timeHint: "A full run takes about 2–4 minutes. Every phase runs in several short passes so no time limit is hit — you see each step live.",
+    scoutTitle: "Scout agent",
+    scoutDesc: "Identifies early change signals in real-time web sources",
+    validatorTitle: "Validator agent",
+    validatorDesc: "Checks existence, plausibility, source quality and biases",
+    synthesisTitle: "Synthesis agent",
+    synthesisDesc: "Condenses validated signals into clusters, PESTEL mapping and an impact matrix",
+    stWaiting: "waiting", stRunning: "working …", stDone: "done", stError: "error",
+    searching: "Web search",
+    resultsFound: "results received",
+    rawShow: "Show raw output", rawHide: "Hide raw output",
+    signalsFound: n => `${n} signals identified. `,
+    hitlScout: "<b>Checkpoint:</b> Review the signals. Deselected signals will not be passed on.",
+    continueValidation: "Continue to validation →",
+    hitlValidator: "<b>Checkpoint:</b> Review the verdicts — especially escalated (gray-zone) signals. REJECTED signals are excluded from synthesis.",
+    continueSynthesis: "Continue to synthesis →",
+    escalated: n => `⚠ ${n} signal(s) in the gray zone — escalated for human review.`,
+    escalatedHint: "The escalated signals appear first in the list below (amber badge).",
+    reviewTitle: "Assessed signals",
+    reviewHint: "Uncheck a signal to exclude it from the synthesis. REJECTED signals are already deselected.",
+    unmatched: "No matching scout signal found.",
+    confidence: "Confidence",
+    copyBtn: "Copy report", copied: "Copied ✓",
+    downloadBtn: "Download as Markdown",
+    pdfBtn: "Download as PDF",
+    pdfHint: "“Download as PDF” opens the print dialog — choose “Save as PDF” as the destination there.",
+    pdfSearchField: "Search field",
+    pdfFocus: "Focus",
+    pdfDepth: "Research depth",
+    pdfDepthStd: "Standard", pdfDepthDeep: "Deep",
+    pdfDate: "Date",
+    pdfAppendix: "Appendix · Validated signals",
+    pdfColSignal: "Signal", pdfColSource: "Source", pdfColVerdict: "Verdict",
+    pdfColConf: "Confidence", pdfColReason: "Validator reasoning",
+    pdfDisclaimer: "Machine-generated heuristic exploration — not a forecast. Interpretation in the specific business context remains the strategy team's task.",
+    newBtn: "New research",
+    retry: "Retry phase",
+    errPrefix: "Error in this phase: ",
+    batchInfo: (i,n) => `Validating signal batch ${i}/${n} …`,
+    continueReport: n => `Continuing the report (part ${n}) — a single call cannot hold the full length …`,
+    reportTruncated: "Even after several continuations the report is not fully finished. Please retry the phase or reduce the research depth.",
+    scoutPartInfo: (i,n,label) => `Pass ${i}/${n}: ${label} …`,
+    partialKept: n => `${n} signal(s) rescued from the interrupted pass — they are kept when you retry.`,
+    missingVerdicts: n => `${n} signal(s) could not be assessed — retry the phase to validate them.`,
+    retryAuto: "Connection interrupted — retrying automatically …",
+    errNoConnection: "The research function could not be reached (network or connection error). Please check your connection and retry the phase.",
+    errStreamCut: "The connection to the research function was cut — usually the 60-second time limit of a Netlify Function. Please retry the phase: completed passes are kept, only the open part is repeated.",
+    errEmpty: "The agent returned no text response (empty response). Please retry the phase.",
+    parseWarn: "Note: the output could not be read as structured signals — raw text is passed to the next phase.",
+    noSignals: "No usable signals left — try again with a different search field or greater depth.",
+    footer: `Implementation based on an idea by: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>AI-generated content may contain errors. Results are heuristic explorations for hypothesis building — no substitute for human judgment and no decision automation. Research runs via the Netlify-native Anthropic interface (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:leo@twistersmanagementconsultingllc.com">leo@twistersmanagementconsultingllc.com</a>`,
+  },
+};
+let LANG = 'de';
+const t = k => I18N[LANG][k];
+
+function setLang(l){
+  LANG = l;
+  document.documentElement.lang = l;
+  document.getElementById('lang-de').classList.toggle('on', l==='de');
+  document.getElementById('lang-en').classList.toggle('on', l==='en');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v = I18N[l][el.dataset.i18n];
+    if (typeof v === 'string') el.innerHTML = v;
+  });
+  document.getElementById('howBody').innerHTML = t('howBody');
+  document.getElementById('topic').placeholder = t('topicPh');
+  document.getElementById('focus').placeholder = t('focusPh');
+  document.getElementById('footer').innerHTML = t('footer');
+  ['scout','validator','synthesis'].forEach(p=>{
+    const chip = document.getElementById('chip-'+p);
+    if (STATE.status[p]==='idle') chip.textContent = t('stWaiting');
+  });
+}
+
+/* ---------------- state ---------------- */
+const STATE = {
+  status: { scout:'idle', validator:'idle', synthesis:'idle' },
+  topic:'', focus:'', depth:'standard', hitl:true,
+  signals: null, signalsRaw:'', verdicts: null, verdictsRaw:'', verdictMap:{}, report:'',
+  selected: null, usedSignals: null, usedVerdicts: null,
+  scoutPlan: null, scoutParts: {},
+};
+
+function setPhase(p, st){
+  STATE.status[p] = st;
+  const el = document.getElementById('phase-'+p);
+  el.classList.remove('active','done','error');
+  const chip = document.getElementById('chip-'+p);
+  if (st==='running'){ el.classList.add('active'); chip.innerHTML = '<span class="spin"></span>'+t('stRunning'); }
+  else if (st==='done'){ el.classList.add('done'); chip.textContent = t('stDone'); }
+  else if (st==='error'){ el.classList.add('error'); chip.textContent = t('stError'); }
+  else chip.textContent = t('stWaiting');
+}
+
+function logAct(p, html){
+  const a = document.getElementById('act-'+p);
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  a.appendChild(d);
+}
+
+function toggleRaw(p){
+  const s = document.getElementById('stream-'+p);
+  const b = document.getElementById('raw-btn-'+p);
+  const hidden = s.classList.toggle('collapsed');
+  b.textContent = hidden ? t('rawShow') : t('rawHide');
+}
+
+/* ---------------- SSE client ---------------- */
+/* Scout und Validator laufen in mehreren kurzen Aufrufen statt in einem langen:
+   jeder einzelne Aufruf bleibt so deutlich unter dem 60-Sekunden-Limit einer
+   Netlify-Function, ohne dass Recherchetiefe verloren geht. */
+const VALIDATOR_BATCH_SIZE = 2;
+
+/* Fällt die Plan-Abfrage aus, läuft der Scout wie früher in einem Durchgang. */
+const SCOUT_FALLBACK_PLAN = [{ key:'all', label:{ de:'Gesamtüberblick', en:'Overall sweep' } }];
+
+const sleep = ms => new Promise(r=>setTimeout(r, ms));
+const chunk = (arr, n) => { const out=[]; for (let i=0;i<arr.length;i+=n) out.push(arr.slice(i,i+n)); return out; };
+
+function isTransient(err){
+  if (err && err.noRetry) return false;
+  // Die Function meldet selbst, ob sich ein zweiter Versuch lohnt (Feld
+  // `retryable`). Das ist verlässlicher, als den Fehlertext zu erraten.
+  if (err && err.retryable === true) return true;
+  const m = String((err && err.message) || err);
+  if (/ANTHROPIC_API_KEY|Anthropic API 4|Unknown phase|Missing topic/i.test(m)) return false;
+  return /network|failed to fetch|load failed|abgebrochen|abort|timeout|zeitlimit|nicht geantwortet|nicht erreichbar|502|503|504|529|overloaded|leere antwort|empty/i.test(m);
+}
+
+function resetPhaseUI(phase){
+  const streamEl = document.getElementById('stream-'+phase);
+  streamEl.classList.remove('collapsed');
+  streamEl.textContent = '';
+  document.getElementById('act-'+phase).innerHTML = '';
+  document.getElementById('raw-btn-'+phase).style.display = 'none';
+}
+
+async function runAgent(phase, extra, opts){
+  opts = opts || {};
+  // Über `opts.meta` erfährt der Aufrufer, warum der Agent aufgehört hat
+  // (`stop_reason`) — entscheidend für die Synthese: Bei "max_tokens" ist der
+  // Bericht nicht fertig, sondern nur abgeschnitten.
+  const meta = opts.meta || {};
+  setPhase(phase,'running');
+  const streamEl = document.getElementById('stream-'+phase);
+  if (opts.append) streamEl.classList.remove('collapsed');
+  else resetPhaseUI(phase);
+  const prefix = opts.append && streamEl.textContent ? streamEl.textContent + '\n\n' : '';
+
+  const body = Object.assign({ phase, topic: STATE.topic, focus: STATE.focus, lang: LANG, depth: STATE.depth }, extra||{});
+  let res;
+  try {
+    res = await fetch('/api/agent', {
+      method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body),
+    });
+  } catch(err){
+    throw new Error(t('errNoConnection'));
+  }
+  if (!res.ok){
+    const raw = await res.text().catch(()=>'');
+    let msg = raw, info = null;
+    try { info = JSON.parse(raw); msg = info.error || raw; } catch {}
+    const e = new Error(msg || ('HTTP '+res.status));
+    e.status = res.status;
+    if (info && typeof info.retryable === 'boolean'){
+      e.retryable = info.retryable;
+      if (!info.retryable) e.noRetry = true;
+    }
+    throw e;
+  }
+  if (!res.body) throw new Error(t('errStreamCut'));
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf='', text='';
+  const blocks = {};
+  try {
+    while (true){
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let idx;
+      while ((idx = buf.indexOf('\n\n')) >= 0){
+        const chunkStr = buf.slice(0, idx); buf = buf.slice(idx+2);
+        for (const line of chunkStr.split('\n')){
+          if (!line.startsWith('data:')) continue;
+          const data = line.slice(5).trim();
+          if (!data) continue;
+          let ev; try { ev = JSON.parse(data); } catch { continue; }
+          if (ev.type === 'content_block_start'){
+            const b = ev.content_block || {};
+            blocks[ev.index] = { type: b.type, json: '' };
+            if (b.type === 'web_search_tool_result'){
+              const n = Array.isArray(b.content) ? b.content.length : null;
+              logAct(phase, '&nbsp;&nbsp;↳ ' + (n!=null ? n+' ' : '') + t('resultsFound'));
+            }
+          } else if (ev.type === 'content_block_delta'){
+            const d = ev.delta || {};
+            if (d.type === 'text_delta'){
+              text += d.text;
+              streamEl.textContent = prefix + text;
+              streamEl.scrollTop = streamEl.scrollHeight;
+            } else if (d.type === 'input_json_delta'){
+              const bl = blocks[ev.index]; if (bl) bl.json += d.partial_json;
+            }
+          } else if (ev.type === 'content_block_stop'){
+            const bl = blocks[ev.index];
+            if (bl && bl.type === 'server_tool_use'){
+              let q = '';
+              try { q = JSON.parse(bl.json || '{}').query || ''; } catch {}
+              if (q) logAct(phase, '🔎 ' + t('searching') + ': <span class="q">' + escapeHtml(q) + '</span>');
+            }
+          } else if (ev.type === 'message_delta'){
+            if (ev.delta && ev.delta.stop_reason) meta.stop_reason = ev.delta.stop_reason;
+          } else if (ev.type === 'error'){
+            const e = new Error((ev.error && ev.error.message) || 'Stream error');
+            e.upstream = true;
+            e.partial = text;
+            // Ein serverseitiges Zeitlimit lohnt keinen automatischen zweiten
+            // Versuch — der Nutzer kann die Phase gezielt wiederholen.
+            if (ev.error && ev.error.type === 'foresight_timeout') e.noRetry = true;
+            throw e;
+          }
+        }
+      }
+    }
+  } catch(err){
+    if (err && err.upstream) throw err;
+    // Abgebrochener Body-Stream (z. B. Function-Timeout) liefert im Browser nur
+    // ein nacktes "network error" — hier in eine verständliche Meldung übersetzen.
+    const e = new Error(t('errStreamCut') + ' (' + String((err && err.message) || err) + ')');
+    e.partial = text;
+    throw e;
+  }
+  if (!text.trim() && !opts.allowEmpty) throw new Error(t('errEmpty'));
+  return text;
+}
+
+/* Ein automatischer zweiter Versuch bei vorübergehenden Fehlern (Timeout,
+   Verbindungsabbruch, Überlastung der API). */
+async function runAgentWithRetry(phase, extra, opts){
+  try {
+    return await runAgent(phase, extra, opts);
+  } catch(err){
+    if (!isTransient(err)) throw err;
+    logAct(phase, '⟳ ' + t('retryAuto'));
+    await sleep(1500);
+    try {
+      return await runAgent(phase, extra, Object.assign({}, opts||{}, {append:true}));
+    } catch(err2){
+      // Teilausgabe des ersten Versuchs nicht verlieren
+      if (err2 && !err2.partial && err.partial) err2.partial = err.partial;
+      throw err2;
+    }
+  }
+}
+
+/* ---------------- helpers ---------------- */
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function extractJSON(text){
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) text = fence[1];
+  const starts = ['{','['].map(c=>text.indexOf(c)).filter(i=>i>=0);
+  if (!starts.length) return null;
+  const start = Math.min(...starts);
+  for (const endCh of ['}',']']){
+    const end = text.lastIndexOf(endCh);
+    if (end > start){
+      try { return JSON.parse(text.slice(start, end+1)); } catch {}
+    }
+  }
+  return null;
+}
+
+/* Alle in sich vollständigen JSON-Objekte aus einem (ggf. abgeschnittenen)
+   Text einsammeln — so bleibt auch eine unvollständige Ausgabe verwertbar. */
+function extractObjects(text, accept){
+  const out = [];
+  for (let i=0;i<text.length;i++){
+    if (text[i] !== '{') continue;
+    let depth=0, inStr=false, esc=false, end=-1;
+    for (let j=i;j<text.length;j++){
+      const ch = text[j];
+      if (esc){ esc=false; continue; }
+      if (ch === '\\'){ esc=true; continue; }
+      if (ch === '"'){ inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (ch === '{') depth++;
+      else if (ch === '}'){ depth--; if (!depth){ end=j; break; } }
+    }
+    if (end < 0) continue;
+    try {
+      const o = JSON.parse(text.slice(i, end+1));
+      if (o && accept(o)){ out.push(o); i = end; }
+    } catch {}
+  }
+  return out;
+}
+
+/* Verdicts auch aus unvollständiger Ausgabe lesen: zuerst regulär als JSON,
+   sonst jedes in sich vollständige Verdict-Objekt einzeln einsammeln. */
+function extractVerdicts(text){
+  const parsed = extractJSON(text);
+  if (parsed){
+    const vs = Array.isArray(parsed.verdicts) ? parsed.verdicts : (Array.isArray(parsed) ? parsed : null);
+    if (vs) return vs;
+  }
+  return extractObjects(text, o=>o.id && o.status);
+}
+
+/* Dasselbe für Scout-Signale: bricht ein Durchgang mittendrin ab, bleiben die
+   bereits vollständig übertragenen Signale erhalten. */
+function extractSignals(text){
+  const parsed = extractJSON(text);
+  if (parsed){
+    const ss = Array.isArray(parsed.signals) ? parsed.signals : (Array.isArray(parsed) ? parsed : null);
+    if (ss) return ss;
+  }
+  return extractObjects(text, o=>o.title && o.source_url);
+}
+
+function collapseStream(phase){
+  const s = document.getElementById('stream-'+phase);
+  const b = document.getElementById('raw-btn-'+phase);
+  s.classList.add('collapsed');
+  b.style.display = 'inline';
+  b.textContent = t('rawShow');
+}
+
+function showError(phase, err, retryFn){
+  setPhase(phase,'error');
+  const out = document.getElementById('out-'+phase);
+  out.innerHTML = '<div class="errbox">'+escapeHtml(t('errPrefix')+String(err.message||err))+'</div>'+
+    '<button class="btn small ghost" style="margin-top:12px">'+escapeHtml(t('retry'))+'</button>';
+  out.querySelector('button').onclick = ()=>{ out.innerHTML=''; retryFn(); };
+}
+
+/* ---------------- signal rendering ---------------- */
+function renderSignals(signals, selectable){
+  const out = document.getElementById('out-scout');
+  out.innerHTML = '';
+  signals.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'signal';
+    div.id = 'sig-'+(s.id||('S'+(i+1)));
+    div.innerHTML =
+      '<div class="top">'+
+      (selectable ? '<input type="checkbox" checked data-sid="'+escapeHtml(s.id||('S'+(i+1)))+'">' : '')+
+      '<div style="flex:1"><h4>'+escapeHtml(s.title||'—')+
+      '<span class="badge type">'+escapeHtml(s.source_type||'source')+'</span>'+
+      '<span class="badge-slot"></span></h4>'+
+      '<p>'+escapeHtml(s.summary||'')+'</p>'+
+      '<div class="meta">'+escapeHtml(s.source_name||'')+(s.date?' · '+escapeHtml(s.date):'')+
+      (s.source_url?' · <a href="'+escapeHtml(s.source_url)+'" target="_blank" rel="noopener">'+(LANG==='de'?'Quelle':'Source')+' ↗</a>':'')+'</div>'+
+      '<p style="font-size:.84rem"><i>'+escapeHtml(s.relevance||'')+'</i></p>'+
+      '<div class="verdict-slot"></div>'+
+      '</div></div>';
+    out.appendChild(div);
+  });
+}
+
+const VERDICT_ORDER = { ESCALATE:0, VERIFIED:1, REJECTED:2 };
+const verdictStatus = v => (['VERIFIED','REJECTED','ESCALATE'].includes(v && v.status) ? v.status : 'ESCALATE');
+
+/* Zugehöriges Scout-Signal zu einer Bewertung finden (für Titel, Quelle, Summary). */
+function signalOf(id){
+  const pool = (STATE.selected && STATE.selected.length ? STATE.selected : STATE.signals) || [];
+  return pool.find(s=>s.id===id) || null;
+}
+
+function sourceMeta(sig){
+  if (!sig) return escapeHtml(t('unmatched'));
+  return escapeHtml(sig.source_name||'')+(sig.date?' · '+escapeHtml(sig.date):'')+
+    (sig.source_url?' · <a href="'+escapeHtml(sig.source_url)+'" target="_blank" rel="noopener">'+(LANG==='de'?'Quelle':'Source')+' ↗</a>':'');
+}
+
+/* Bewertungen zusätzlich an den Scout-Karten (P1) vermerken. */
+function applyVerdicts(verdicts){
+  verdicts.forEach(v=>{
+    const card = document.getElementById('sig-'+v.id);
+    if (!card) return;
+    const st = verdictStatus(v);
+    card.classList.toggle('rejected-sig', st==='REJECTED');
+    const slot = card.querySelector('.badge-slot');
+    if (slot) slot.innerHTML = '<span class="badge '+st+'">'+st+' · '+(typeof v.confidence_score==='number'? v.confidence_score.toFixed(2):'?')+'</span>';
+    const vslot = card.querySelector('.verdict-slot');
+    if (vslot){
+      const pct = confPct(v);
+      vslot.innerHTML =
+        '<div class="confbar"><i style="width:'+pct+'%"></i></div>'+
+        '<div class="verdict-reason"><b>'+t('confidence')+': '+pct+'%</b> — '+escapeHtml(v.reasoning||'')+
+        (v.rejection_reason && v.rejection_reason!=='null' ? '<br>⛔ '+escapeHtml(v.rejection_reason):'')+'</div>';
+    }
+  });
+}
+
+const confPct = v => Math.round(Math.max(0,Math.min(1,+((v&&v.confidence_score))||0))*100);
+
+/* Die bewerteten Signale werden auch direkt in der Validator-Phase (P2) gezeigt —
+   sonst steht der Prüfpunkt-Hinweis dort ohne die Signale, auf die er sich bezieht.
+   Eskalierte Signale stehen zuerst, REJECTED zuletzt und vorab abgewählt. */
+function renderVerdictReview(verdicts, selectable){
+  const out = document.getElementById('out-validator');
+  out.innerHTML = '';
+  const rows = verdicts
+    .map(v=>({ v, st: verdictStatus(v), sig: signalOf(v.id) }))
+    .sort((a,b)=>VERDICT_ORDER[a.st]-VERDICT_ORDER[b.st]);
+
+  const escalated = rows.filter(r=>r.st==='ESCALATE').length;
+  if (escalated){
+    const d = document.createElement('div');
+    d.className = 'hitl';
+    d.innerHTML = '<b>'+t('escalated')(escalated)+'</b><br><span style="font-size:.86rem">'+escapeHtml(t('escalatedHint'))+'</span>';
+    out.appendChild(d);
+  }
+
+  const head = document.createElement('div');
+  head.innerHTML = '<h4 style="margin:18px 0 2px">'+escapeHtml(t('reviewTitle'))+' ('+rows.length+')</h4>'+
+    (selectable ? '<div class="hint" style="margin-top:2px">'+escapeHtml(t('reviewHint'))+'</div>' : '');
+  out.appendChild(head);
+
+  rows.forEach(r=>{
+    const pct = confPct(r.v);
+    const div = document.createElement('div');
+    div.className = 'signal'+(r.st==='REJECTED' ? ' rejected-sig' : '');
+    div.innerHTML =
+      '<div class="top">'+
+      (selectable ? '<input type="checkbox" data-vid="'+escapeHtml(r.v.id||'')+'"'+(r.st==='REJECTED'?'':' checked')+'>' : '')+
+      '<div style="flex:1">'+
+      '<h4>'+escapeHtml((r.sig && r.sig.title) || r.v.id || '—')+
+      (r.sig && r.sig.source_type ? '<span class="badge type">'+escapeHtml(r.sig.source_type)+'</span>' : '')+
+      '<span class="badge '+r.st+'">'+r.st+' · '+(typeof r.v.confidence_score==='number'? r.v.confidence_score.toFixed(2):'?')+'</span></h4>'+
+      (r.sig && r.sig.summary ? '<p>'+escapeHtml(r.sig.summary)+'</p>' : '')+
+      '<div class="meta">'+sourceMeta(r.sig)+'</div>'+
+      '<div class="confbar"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="verdict-reason"><b>'+t('confidence')+': '+pct+'%</b> — '+escapeHtml(r.v.reasoning||'')+
+      (r.v.rejection_reason && r.v.rejection_reason!=='null' ? '<br>⛔ '+escapeHtml(r.v.rejection_reason):'')+
+      (r.v.suggested_action ? '<br>→ '+escapeHtml(r.v.suggested_action):'')+
+      '</div></div></div>';
+    out.appendChild(div);
+  });
+}
+
+/* Auswahl des Prüfpunkts: welche Bewertungen gehen in die Synthese? */
+function keptVerdicts(){
+  if (!STATE.verdicts) return null;
+  const boxes = Array.from(document.querySelectorAll('#out-validator input[type=checkbox]'));
+  if (!boxes.length) return STATE.verdicts;
+  const keep = new Set(boxes.filter(c=>c.checked).map(c=>c.dataset.vid));
+  return STATE.verdicts.filter(v=>keep.has(v.id));
+}
+
+/* ---------------- markdown renderer ---------------- */
+function mdRender(src){
+  const esc = s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const inline = s=>{
+    s = s.replace(/`([^`]+)`/g,'<code>$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    s = s.replace(/(^|[^*\w])\*([^*]+)\*/g,'$1<em>$2</em>');
+    s = s.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return s;
+  };
+  const lines = esc(src).split(/\r?\n/);
+  const isTable = l=>/^\s*\|.*\|\s*$/.test(l);
+  const isUl = l=>/^\s*[-*+]\s+/.test(l);
+  const isOl = l=>/^\s*\d+[.)]\s+/.test(l);
+  let html='', i=0;
+  while (i<lines.length){
+    const l = lines[i];
+    if (/^\s*$/.test(l)){ i++; continue; }
+    let m;
+    if ((m = l.match(/^(#{1,4})\s+(.*)/))){
+      const n = Math.min(m[1].length+1, 5);
+      html += `<h${n}>${inline(m[2])}</h${n}>`; i++; continue;
+    }
+    if (/^\s*(-{3,}|\*{3,})\s*$/.test(l)){ html += '<hr>'; i++; continue; }
+    if (isTable(l)){
+      const rows = [];
+      while (i<lines.length && isTable(lines[i])){ rows.push(lines[i]); i++; }
+      const cells = r=>r.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      const head = cells(rows[0]);
+      const bodyStart = rows[1] && /^[\s|:\-]+$/.test(rows[1]) ? 2 : 1;
+      html += '<table><thead><tr>'+head.map(c=>'<th>'+inline(c)+'</th>').join('')+'</tr></thead><tbody>';
+      for (let r=bodyStart; r<rows.length; r++){
+        html += '<tr>'+cells(rows[r]).map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>';
+      }
+      html += '</tbody></table>'; continue;
+    }
+    if (isUl(l)){
+      html += '<ul>';
+      while (i<lines.length && isUl(lines[i])){ html += '<li>'+inline(lines[i].replace(/^\s*[-*+]\s+/,''))+'</li>'; i++; }
+      html += '</ul>'; continue;
+    }
+    if (isOl(l)){
+      html += '<ol>';
+      while (i<lines.length && isOl(lines[i])){ html += '<li>'+inline(lines[i].replace(/^\s*\d+[.)]\s+/,''))+'</li>'; i++; }
+      html += '</ol>'; continue;
+    }
+    const para = [l]; i++;
+    while (i<lines.length && !/^\s*$/.test(lines[i]) && !/^#{1,4}\s/.test(lines[i]) && !isTable(lines[i]) && !isUl(lines[i]) && !isOl(lines[i])){
+      para.push(lines[i]); i++;
+    }
+    html += '<p>'+inline(para.join(' '))+'</p>';
+  }
+  return html;
+}
+
+/* ---------------- pipeline orchestration ---------------- */
+async function startResearch(){
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic){ document.getElementById('topic').focus(); return; }
+  STATE.topic = topic;
+  STATE.focus = document.getElementById('focus').value.trim();
+  STATE.depth = document.getElementById('depth').value;
+  STATE.hitl = document.getElementById('hitl').checked;
+  STATE.signals = null; STATE.signalsRaw = '';
+  STATE.scoutPlan = null; STATE.scoutParts = {};
+  STATE.verdicts = null; STATE.verdictsRaw = ''; STATE.verdictMap = {};
+  STATE.selected = null; STATE.report = '';
+  STATE.usedSignals = null; STATE.usedVerdicts = null;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('pipeline').style.display = 'block';
+  document.getElementById('howto').open = false;
+  ['scout','validator','synthesis'].forEach(p=>{
+    setPhase(p,'idle');
+    document.getElementById('out-'+p).innerHTML='';
+    document.getElementById('act-'+p).innerHTML='';
+    document.getElementById('stream-'+p).textContent='';
+    document.getElementById('gate-scout').innerHTML='';
+    document.getElementById('gate-validator').innerHTML='';
+  });
+  document.getElementById('reportActions').style.display='none';
+  document.getElementById('phase-scout').scrollIntoView({behavior:'smooth'});
+  runScout();
+}
+
+/* Durchgangs-Plan der Scout-Phase beim Server erfragen (Perspektiven und
+   Suchbudget stehen dort, damit Plan und Prompt nicht auseinanderlaufen). */
+async function loadScoutPlan(){
+  if (STATE.scoutPlan) return STATE.scoutPlan;
+  try {
+    const res = await fetch('/api/agent?plan=scout&depth='+encodeURIComponent(STATE.depth));
+    if (res.ok){
+      const data = await res.json();
+      if (data && Array.isArray(data.parts) && data.parts.length) STATE.scoutPlan = data.parts;
+    }
+  } catch {}
+  if (!STATE.scoutPlan) STATE.scoutPlan = SCOUT_FALLBACK_PLAN;
+  return STATE.scoutPlan;
+}
+
+const partLabel = p => (p && p.label && (p.label[LANG] || p.label.de)) || '';
+
+/* Kurzliste der bereits gefundenen Signale — verhindert Dopplungen zwischen
+   den Durchgängen. */
+function scoutExclude(){
+  const lines = [];
+  Object.keys(STATE.scoutParts).sort((a,b)=>a-b).forEach(k=>{
+    (STATE.scoutParts[k].signals||[]).forEach(s=>{
+      lines.push('- '+String(s.title||'').slice(0,140)+(s.source_url ? ' ('+String(s.source_url).slice(0,160)+')' : ''));
+    });
+  });
+  return lines.join('\n').slice(0, 3000);
+}
+
+const signalKey = s =>
+  String(s.source_url||'').trim().toLowerCase().replace(/[#?].*$/,'').replace(/\/+$/,'') ||
+  String(s.title||'').trim().toLowerCase();
+
+/* Ergebnisse aller Durchgänge zusammenführen, Dopplungen entfernen, neu nummerieren. */
+function mergedScoutSignals(){
+  const seen = new Set(), out = [];
+  Object.keys(STATE.scoutParts).sort((a,b)=>a-b).forEach(k=>{
+    (STATE.scoutParts[k].signals||[]).forEach(s=>{
+      const key = signalKey(s);
+      if (key){ if (seen.has(key)) return; seen.add(key); }
+      out.push(s);
+    });
+  });
+  return out.map((s,i)=>Object.assign({}, s, {id:'S'+(i+1)}));
+}
+
+/* Der Scout recherchiert perspektivenweise. Abgeschlossene Durchgänge werden
+   gemerkt: ein erneuter Versuch der Phase holt nur die offenen Durchgänge nach.
+   Bricht ein Durchgang ab, bleiben die bis dahin gelieferten Signale erhalten. */
+function recordScoutPart(i, text, complete){
+  const entry = STATE.scoutParts[i] || { raw:'', signals:[] };
+  entry.raw += (entry.raw ? '\n\n' : '') + text;
+  entry.signals = entry.signals.concat(extractSignals(text) || []);
+  entry.partial = !complete;
+  STATE.scoutParts[i] = entry;
+  return entry;
+}
+
+async function scoutInParts(){
+  const parts = await loadScoutPlan();
+  let started = false;
+  for (let i=0;i<parts.length;i++){
+    if (STATE.scoutParts[i] && !STATE.scoutParts[i].partial) continue;
+    if (!started){ resetPhaseUI('scout'); started = true; }
+    const label = partLabel(parts[i]);
+    logAct('scout', '🛰 '+escapeHtml(t('scoutPartInfo')(i+1, parts.length, label)));
+    let text;
+    try {
+      text = await runAgentWithRetry('scout',
+        { part: i, exclude: scoutExclude() },
+        { append: true });
+    } catch(err){
+      const partial = (err && err.partial) || '';
+      if (partial){
+        const kept = recordScoutPart(i, partial, false).signals.length;
+        if (kept) logAct('scout', '⚠ '+escapeHtml(t('partialKept')(kept)));
+      }
+      throw err;
+    }
+    recordScoutPart(i, text, true);
+  }
+  STATE.signalsRaw = Object.keys(STATE.scoutParts).sort((a,b)=>a-b)
+    .map(k=>STATE.scoutParts[k].raw).join('\n\n');
+}
+
+async function runScout(){
+  try {
+    await scoutInParts();
+    const signals = mergedScoutSignals();
+    collapseStream('scout');
+    setPhase('scout','done');
+    if (signals.length){
+      STATE.signals = signals;
+      logAct('scout','✅ '+t('signalsFound')(STATE.signals.length));
+      renderSignals(STATE.signals, STATE.hitl);
+      if (STATE.hitl){
+        const g = document.getElementById('gate-scout');
+        g.innerHTML = '<div class="hitl">'+t('hitlScout')+'<br><button class="btn small" style="margin-top:10px">'+escapeHtml(t('continueValidation'))+'</button></div>';
+        g.querySelector('button').onclick = ()=>{ g.innerHTML=''; proceedToValidator(); };
+      } else {
+        proceedToValidator();
+      }
+    } else {
+      STATE.signals = null;
+      const out = document.getElementById('out-scout');
+      out.innerHTML = '<div class="hint">'+escapeHtml(t('parseWarn'))+'</div>';
+      document.getElementById('stream-scout').classList.remove('collapsed');
+      proceedToValidator();
+    }
+  } catch(err){ showError('scout', err, runScout); }
+}
+
+function selectedSignals(){
+  if (!STATE.signals) return null;
+  if (!STATE.hitl) return STATE.signals;
+  const checked = new Set(Array.from(document.querySelectorAll('#out-scout input[type=checkbox]:checked')).map(c=>c.dataset.sid));
+  return STATE.signals.filter(s=>checked.has(s.id));
+}
+
+async function proceedToValidator(){
+  const sel = selectedSignals();
+  if (STATE.signals && (!sel || !sel.length)){
+    document.getElementById('gate-scout').innerHTML = '<div class="errbox">'+escapeHtml(t('noSignals'))+'</div>';
+    document.getElementById('startBtn').disabled = false;
+    return;
+  }
+  STATE.selected = sel;
+  document.querySelectorAll('#out-scout input[type=checkbox]').forEach(c=>c.disabled=true);
+  document.getElementById('phase-validator').scrollIntoView({behavior:'smooth'});
+  runValidator();
+}
+
+async function runValidator(){
+  try {
+    let verdicts;
+    if (STATE.selected && STATE.selected.length){
+      verdicts = await validateInBatches(STATE.selected);
+    } else {
+      // Fallback: Scout-Ausgabe war nicht strukturiert lesbar — Rohtext in einem Zug prüfen
+      const text = await runAgentWithRetry('validator', { signals: STATE.signalsRaw });
+      STATE.verdictsRaw = text;
+      const vs = extractVerdicts(text);
+      verdicts = vs.length ? vs : null;
+    }
+    collapseStream('validator');
+    setPhase('validator','done');
+    if (verdicts && verdicts.length){
+      STATE.verdicts = verdicts;
+      applyVerdicts(verdicts);
+      renderVerdictReview(verdicts, STATE.hitl);
+      const usable = verdicts.filter(v=>verdictStatus(v)!=='REJECTED').length;
+      if (!usable){
+        document.getElementById('out-validator').innerHTML += '<div class="errbox">'+escapeHtml(t('noSignals'))+'</div>';
+        document.getElementById('startBtn').disabled = false;
+        return;
+      }
+    } else {
+      STATE.verdicts = null;
+      document.getElementById('out-validator').innerHTML = '<div class="hint">'+escapeHtml(t('parseWarn'))+'</div>';
+      document.getElementById('stream-validator').classList.remove('collapsed');
+    }
+    if (STATE.hitl){
+      const g = document.getElementById('gate-validator');
+      g.innerHTML = '<div class="hitl">'+t('hitlValidator')+'<br><button class="btn small" style="margin-top:10px">'+escapeHtml(t('continueSynthesis'))+'</button></div>';
+      g.querySelector('button').onclick = ()=>{ g.innerHTML=''; runSynthesis(); };
+    } else {
+      runSynthesis();
+    }
+  } catch(err){ showError('validator', err, runValidator); }
+}
+
+/* Signale paketweise validieren. Bereits bewertete Signale werden bei einem
+   erneuten Versuch der Phase übersprungen, damit keine Arbeit verloren geht. */
+async function validateInBatches(signals){
+  const done = STATE.verdictMap;
+  const batches = chunk(signals, VALIDATOR_BATCH_SIZE);
+  let started = false;
+  for (let i=0;i<batches.length;i++){
+    const pending = batches[i].filter(s=>!done[s.id]);
+    if (!pending.length) continue;
+    if (!started){ resetPhaseUI('validator'); started = true; }
+    logAct('validator', '🧪 '+escapeHtml(t('batchInfo')(i+1, batches.length)));
+    const text = await runAgentWithRetry('validator',
+      { signals: JSON.stringify({signals: pending}, null, 1) },
+      { append: true });
+    STATE.verdictsRaw += (STATE.verdictsRaw ? '\n\n' : '') + text;
+    const vs = extractVerdicts(text);
+    vs.forEach(v=>{ if (v && v.id && !done[v.id]) done[v.id] = v; });
+  }
+  const missing = signals.filter(s=>!done[s.id]).length;
+  if (missing) logAct('validator', '⚠ '+escapeHtml(t('missingVerdicts')(missing)));
+  return signals.map(s=>done[s.id]).filter(Boolean);
+}
+
+async function runSynthesis(){
+  // Auswahl aus dem Prüfpunkt anwenden: abgewählte (und standardmäßig alle
+  // REJECTED-) Signale gehen nicht in die Synthese.
+  const kept = keptVerdicts();
+  if (STATE.verdicts && (!kept || !kept.length)){
+    document.getElementById('gate-validator').innerHTML = '<div class="errbox">'+escapeHtml(t('noSignals'))+'</div>';
+    document.getElementById('startBtn').disabled = false;
+    return;
+  }
+  document.querySelectorAll('#out-validator input[type=checkbox]').forEach(c=>c.disabled=true);
+  document.getElementById('phase-synthesis').scrollIntoView({behavior:'smooth'});
+  const keptIds = kept ? new Set(kept.map(v=>v.id)) : null;
+  const usedSignals = (STATE.selected && keptIds) ? STATE.selected.filter(s=>keptIds.has(s.id)) : STATE.selected;
+  STATE.usedSignals = usedSignals; STATE.usedVerdicts = kept;
+  const signalsJson = usedSignals && usedSignals.length ? JSON.stringify({signals: usedSignals}, null, 1) : STATE.signalsRaw;
+  const verdictsJson = kept ? JSON.stringify({verdicts: kept}, null, 1) : STATE.verdictsRaw;
+  try {
+    const text = await writeReport(signalsJson, verdictsJson);
+    STATE.report = text;
+    collapseStream('synthesis');
+    setPhase('synthesis','done');
+    document.getElementById('out-synthesis').innerHTML = mdRender(text);
+    document.getElementById('reportActions').style.display = 'flex';
+    document.getElementById('startBtn').disabled = false;
+  } catch(err){ showError('synthesis', err, runSynthesis); document.getElementById('startBtn').disabled = false; }
+}
+
+/* Der Bericht wird segmentweise geschrieben. Ein einzelner Aufruf ist doppelt
+   begrenzt — durch das Token-Limit der Antwort und durch das Zeitbudget der
+   Function. Beides ließ längere Berichte (typisch bei tiefer Recherche) bisher
+   mitten im Satz enden, ohne Fehlermeldung: Der Stream endete regulär, nur eben
+   mit stop_reason "max_tokens". Endet ein Segment abgeschnitten, schickt der
+   Client den bisherigen Text zurück und lässt den Bericht fortsetzen. */
+const MAX_REPORT_SEGMENTS = 5;
+
+/* Auf die letzte vollständige Zeile kürzen. Die am Abbruchpunkt angefangene
+   Zeile ("**B (non-kin") wird verworfen und vom nächsten Segment neu
+   geschrieben — an einer Zeilengrenze anzusetzen ist für das Modell deutlich
+   zuverlässiger, als mitten im Wort weiterzuschreiben. */
+function cutAtLineBoundary(text){
+  const nl = text.lastIndexOf('\n');
+  return (nl < 0 ? text : text.slice(0, nl)).replace(/\s+$/, '');
+}
+const joinSegments = (soFar, next) => {
+  if (!soFar) return next;
+  if (/^\n/.test(next)) return soFar + next;
+  // Eine Überschrift beginnt immer einen neuen Block — davor gehört eine Leerzeile.
+  return soFar + (/^#{1,6} /.test(next) ? '\n\n' : '\n') + next;
+};
+
+async function writeReport(signalsJson, verdictsJson){
+  let report = '', truncated = false;
+  for (let seg = 0; seg < MAX_REPORT_SEGMENTS; seg++){
+    const meta = {};
+    const extra = { signals: signalsJson, verdicts: verdictsJson };
+    if (report) extra.previous = report;
+    if (seg) logAct('synthesis', '⏩ '+escapeHtml(t('continueReport')(seg+1)));
+    const last = seg === MAX_REPORT_SEGMENTS - 1;
+    let text;
+    try {
+      // Ein Fortsetzungs-Segment darf leer bleiben: Dann war der Bericht bereits
+      // vollständig und es gibt schlicht nichts mehr zu ergänzen.
+      text = await runAgentWithRetry('synthesis', extra, { append: seg>0, meta, allowEmpty: seg>0 });
+    } catch(err){
+      // Abbruch mitten im Bericht (Zeitlimit, Verbindung): Der bereits
+      // geschriebene Teil bleibt erhalten, das nächste Segment knüpft daran an.
+      if (last || !err || !err.partial || !err.partial.trim()) throw err;
+      report = cutAtLineBoundary(joinSegments(report, err.partial));
+      truncated = true;
+      continue;
+    }
+    if (!text.trim()){ truncated = false; break; }
+    report = joinSegments(report, text);
+    truncated = meta.stop_reason === 'max_tokens';
+    if (!truncated) break;
+    report = cutAtLineBoundary(report);
+  }
+  if (truncated) logAct('synthesis', '⚠ '+escapeHtml(t('reportTruncated')));
+  return report;
+}
+
+/* ---------------- report actions ---------------- */
+function topicSlug(){
+  return (STATE.topic||'report').toLowerCase().replace(/[^a-z0-9äöüß]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,50) || 'report';
+}
+function reportMarkdown(){
+  const date = new Date().toISOString().slice(0,10);
+  return '# Agentic Foresight — '+STATE.topic+' ('+date+')\n\n'+STATE.report+
+    '\n\n---\n*Agentic Foresight nach Haugk & Leyh (2026), doi:10.1365/s40702-026-01318-4*\n';
+}
+function copyReport(){
+  navigator.clipboard.writeText(reportMarkdown()).then(()=>{
+    const b = document.getElementById('copyBtn');
+    b.textContent = t('copied');
+    setTimeout(()=>{ b.textContent = t('copyBtn'); }, 1800);
+  });
+}
+function downloadReport(){
+  const blob = new Blob([reportMarkdown()], {type:'text/markdown;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'foresight-report-'+topicSlug()+'.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* PDF ohne Zusatzbibliothek: druckfertiges HTML-Dokument aufbauen und den
+   Druckdialog öffnen — dort „Als PDF speichern“ wählen. Der Dokumenttitel
+   bestimmt in den Browsern den vorgeschlagenen Dateinamen. */
+function pdfAppendixHtml(){
+  const verdicts = STATE.usedVerdicts || STATE.verdicts;
+  if (!verdicts || !verdicts.length) return '';
+  const rows = verdicts
+    .map(v=>({ v, st: verdictStatus(v), sig: signalOf(v.id) }))
+    .sort((a,b)=>VERDICT_ORDER[a.st]-VERDICT_ORDER[b.st])
+    .map(r=>{
+      const src = r.sig && r.sig.source_url
+        ? '<a href="'+escapeHtml(r.sig.source_url)+'">'+escapeHtml(r.sig.source_name||r.sig.source_url)+'</a>'
+        : escapeHtml((r.sig && r.sig.source_name) || '—');
+      return '<tr><td>'+escapeHtml((r.sig && r.sig.title) || r.v.id || '—')+'</td>'+
+        '<td>'+src+(r.sig && r.sig.date ? '<br>'+escapeHtml(r.sig.date) : '')+'</td>'+
+        '<td class="st '+r.st+'">'+r.st+'</td>'+
+        '<td>'+confPct(r.v)+' %</td>'+
+        '<td>'+escapeHtml(r.v.reasoning||'')+
+        (r.v.rejection_reason && r.v.rejection_reason!=='null' ? '<br>⛔ '+escapeHtml(r.v.rejection_reason) : '')+'</td></tr>';
+    }).join('');
+  return '<h2 class="appendix">'+escapeHtml(t('pdfAppendix'))+'</h2>'+
+    '<table><thead><tr>'+
+    ['pdfColSignal','pdfColSource','pdfColVerdict','pdfColConf','pdfColReason']
+      .map(k=>'<th>'+escapeHtml(t(k))+'</th>').join('')+
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function reportPdfDocument(){
+  const deep = STATE.depth === 'deep';
+  const date = new Date().toLocaleDateString(LANG==='de' ? 'de-DE' : 'en-GB');
+  const meta = [
+    [t('pdfSearchField'), STATE.topic],
+    STATE.focus ? [t('pdfFocus'), STATE.focus] : null,
+    [t('pdfDepth'), deep ? t('pdfDepthDeep') : t('pdfDepthStd')],
+    [t('pdfDate'), date],
+  ].filter(Boolean)
+   .map(p=>'<tr><th>'+escapeHtml(p[0])+'</th><td>'+escapeHtml(p[1])+'</td></tr>').join('');
+  const css = `
+    @page{size:A4;margin:18mm 15mm}
+    *{box-sizing:border-box}
+    body{margin:0;color:#111827;background:#fff;
+      font:11pt/1.55 -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+    h1{font-size:19pt;margin:0 0 2pt;color:#0f172a}
+    .brand{font-size:9pt;letter-spacing:.12em;text-transform:uppercase;color:#0f766e;margin:0 0 10pt}
+    h2{font-size:13pt;color:#0f766e;border-bottom:1px solid #cbd5e1;padding-bottom:3pt;
+      margin:16pt 0 6pt;page-break-after:avoid}
+    h2.appendix{page-break-before:always}
+    h3{font-size:11.5pt;margin:11pt 0 4pt;page-break-after:avoid}
+    h4,h5{font-size:11pt;margin:9pt 0 3pt;page-break-after:avoid}
+    p{margin:5pt 0}
+    ul,ol{margin:5pt 0;padding-left:16pt}
+    li{margin:2pt 0;page-break-inside:avoid}
+    a{color:#0f766e;word-break:break-word}
+    code{background:#f1f5f9;padding:0 3pt;border-radius:3px;font-size:.9em}
+    hr{border:0;border-top:1px solid #cbd5e1;margin:10pt 0}
+    table{border-collapse:collapse;width:100%;font-size:9pt;margin:7pt 0}
+    th,td{border:1px solid #cbd5e1;padding:4pt 6pt;text-align:left;vertical-align:top}
+    th{background:#f1f5f9;color:#0f172a}
+    tr{page-break-inside:avoid}
+    table.meta{width:auto;margin:0 0 6pt;font-size:9.5pt}
+    table.meta th{white-space:nowrap;color:#475569}
+    .st{font-weight:700;white-space:nowrap}
+    .st.VERIFIED{color:#15803d}
+    .st.REJECTED{color:#b91c1c}
+    .st.ESCALATE{color:#b45309}
+    footer{margin-top:14pt;border-top:1px solid #cbd5e1;padding-top:6pt;font-size:8.5pt;color:#475569}
+  `;
+  return '<!DOCTYPE html><html lang="'+LANG+'"><head><meta charset="utf-8">'+
+    '<title>'+escapeHtml('foresight-report-'+topicSlug())+'</title><style>'+css+'</style></head><body>'+
+    '<p class="brand">Agentic Foresight — Scout · Validator · '+(LANG==='de'?'Synthese':'Synthesis')+'</p>'+
+    '<h1>'+escapeHtml(STATE.topic||'')+'</h1>'+
+    '<table class="meta"><tbody>'+meta+'</tbody></table>'+
+    mdRender(STATE.report||'')+
+    pdfAppendixHtml()+
+    '<footer>'+escapeHtml(t('pdfDisclaimer'))+'<br>'+
+    'Agentic Foresight nach Haugk, S. &amp; Leyh, C. (2026), HMD Praxis der Wirtschaftsinformatik, '+
+    '<a href="https://doi.org/10.1365/s40702-026-01318-4">doi:10.1365/s40702-026-01318-4</a></footer>'+
+    '</body></html>';
+}
+
+function downloadPdf(){
+  const html = reportPdfDocument();
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden','true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none';
+  let removed = false;
+  const cleanup = ()=>{ if (!removed && frame.parentNode){ removed = true; frame.parentNode.removeChild(frame); } };
+  frame.onload = ()=>{
+    const w = frame.contentWindow;
+    try {
+      w.focus();
+      if (w.addEventListener) w.addEventListener('afterprint', ()=>setTimeout(cleanup, 300));
+      w.print();
+      // Falls kein afterprint-Event kommt (ältere Browser): spät aufräumen,
+      // ein zu frühes Entfernen würde den Druckauftrag abbrechen.
+      setTimeout(cleanup, 120000);
+    } catch(err){
+      cleanup();
+      const win = window.open('', '_blank');
+      if (win){ win.document.write(html); win.document.close(); win.focus(); win.print(); }
+    }
+  };
+  document.body.appendChild(frame);
+  frame.srcdoc = html;
+}
+
+function resetAll(){
+  STATE.signals = STATE.verdicts = STATE.selected = STATE.usedSignals = STATE.usedVerdicts = null;
+  STATE.signalsRaw = STATE.verdictsRaw = STATE.report = '';
+  STATE.scoutPlan = null; STATE.scoutParts = {}; STATE.verdictMap = {};
+  document.getElementById('pipeline').style.display = 'none';
+  document.getElementById('startBtn').disabled = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+setLang('de');
+</script>
+</body>
+</html>
