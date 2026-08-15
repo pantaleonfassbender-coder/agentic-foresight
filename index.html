@@ -29,6 +29,14 @@
   details.card[open] summary::before{transform:rotate(90deg)}
   details.card .inner{padding:0 24px 20px;color:var(--muted)}
   details.card .inner b{color:var(--text)}
+  details.legal .inner h4{color:var(--accent);font-size:.95rem;margin:22px 0 6px}
+  details.legal .inner p{margin:0 0 10px}
+  details.legal .inner ul{padding-left:22px;margin:8px 0}
+  details.legal .inner strong{color:var(--text)}
+  details.legal .inner .warn{background:var(--card2);border-left:3px solid var(--amber);
+    border-radius:0 9px 9px 0;padding:14px 18px;margin:16px 0;color:var(--text)}
+  details.legal .inner .warn strong{color:var(--amber)}
+  details.legal .inner .stand{border-top:1px solid var(--border);margin-top:22px;padding-top:12px;font-size:.85rem}
   details.card .inner ol{padding-left:22px;margin:8px 0}
   details.card .inner li{margin:7px 0}
   label{display:block;font-weight:600;margin:16px 0 6px}
@@ -207,6 +215,11 @@
     </div>
   </div>
 
+  <details class="card legal" id="legal">
+    <summary id="legalSummary"></summary>
+    <div class="inner" id="legalBody"></div>
+  </details>
+
   <footer id="footer"></footer>
 </div>
 
@@ -284,7 +297,53 @@ const I18N = {
     errEmpty: "Der Agent hat keine Textantwort geliefert (leere Antwort). Bitte Phase erneut versuchen.",
     parseWarn: "Hinweis: Die Ausgabe konnte nicht als strukturierte Signale gelesen werden — der Rohtext wird an die nächste Phase weitergereicht.",
     noSignals: "Keine auswertbaren Signale übrig — Recherche mit anderem Suchfeld oder größerer Tiefe erneut versuchen.",
-    footer: `Umsetzung nach einer Idee von: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>KI-generierte Inhalte können Fehler enthalten. Ergebnisse sind heuristische Explorationen zur Hypothesenbildung — kein Ersatz für menschliche Urteilskraft und keine Entscheidungsautomation. Recherche läuft über die Netlify-native Anthropic-Schnittstelle (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:leo@twistersmanagementconsultingllc.com">leo@twistersmanagementconsultingllc.com</a>`,
+    footer: `Umsetzung nach einer Idee von: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>KI-generierte Inhalte können Fehler enthalten. Ergebnisse sind heuristische Explorationen zur Hypothesenbildung — kein Ersatz für menschliche Urteilskraft und keine Entscheidungsautomation. Recherche läuft über die Netlify-native Anthropic-Schnittstelle (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:pantaleonfassbender@gmail.com">pantaleonfassbender@gmail.com</a> · <a href="#legal">Datenschutz und Impressum</a>`,
+    legalTitle: "Datenschutz und Impressum",
+    legal: `
+      <div class="warn"><strong>Bevor Sie ein Thema eingeben.</strong> Diese Seite denkt nicht nur über Ihr Thema nach — sie <strong>sucht danach im offenen Web</strong>. Aus Ihrer Eingabe werden Suchanfragen, die an die Suchinfrastruktur des Modellanbieters gehen. Geben Sie deshalb nichts ein, was Sie nicht auch in eine Suchmaschine tippen würden: keine unangekündigten Vorhaben, keine Vertragsinterna, keine Mandanten- oder Kundennamen, keine Angaben über identifizierbare Personen. Für Märkte, Technologien, Branchen und veröffentlichte Produkte ist das Werkzeug gebaut; für Betriebsgeheimnisse nicht.</div>
+
+      <h4>Verantwortlicher</h4>
+      <p>Diese Website wird von einer Privatperson mit Wohnsitz in den Vereinigten Staaten betrieben; die Angaben stehen unten unter „Impressum“. Sie ist ein privates Projekt und wird nicht im Auftrag einer Institution, eines Arbeitgebers oder eines Verlages betrieben. Da die Seite deutschsprachig abrufbar ist, gilt für sie die Datenschutz-Grundverordnung nach Art. 3 Abs. 2 DSGVO; Verantwortlicher im Sinne von Art. 4 Nr. 7 DSGVO ist der Betreiber.</p>
+
+      <h4>Was diese Seite technisch ist</h4>
+      <p>Eine einzelne statische Seite mit einer Serverfunktion. Kein Benutzerkonto, keine Anmeldung, kein Kontaktformular, kein Newsletter. Die Seite setzt <strong>keinerlei Cookies</strong>, verwendet keine Analyse-, Tag-Manager-, Werbe- oder Session-Recording-Dienste und speichert nichts in Local Storage, Session Storage oder IndexedDB. Sie lädt <strong>nichts von fremden Servern</strong> — keine Schriften, keine Skripte, keine Bilder; der Aufruf kontaktiert genau einen Host: den in Ihrer Adresszeile. Erst wenn Sie im Bericht eine Quelle anklicken, verlassen Sie diese Seite.</p>
+
+      <h4>Server-Logs</h4>
+      <p>Gehostet wird bei Netlify. Wie jeder Webserver protokolliert dessen Infrastruktur die ausgelieferten Anfragen — üblicherweise IP-Adresse, Zeitpunkt, angeforderte URL, HTTP-Status, übertragene Datenmenge sowie User-Agent und Referrer. Das ist technisch unvermeidbar und die einzige serverseitige Erhebung; sie dient Betrieb und Sicherheit, wird vom Betreiber nicht ausgewertet, und die Speicherdauer richtet sich nach den Fristen von Netlify. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Betrieb und Hosting liegen in den USA; für Abrufe aus dem EWR ist das eine Verarbeitung außerhalb des EWR.</p>
+
+      <h4>Was Ihre Eingabe auslöst</h4>
+      <p>Solange Sie nichts starten, verlässt nichts Ihr Gerät. Mit dem Start einer Phase wird übertragen:</p>
+      <ul>
+        <li>das Thema, bis 300 Zeichen;</li>
+        <li>das optionale Suchfeld, bis 1.000 Zeichen;</li>
+        <li>Sprache und gewählte Recherchetiefe;</li>
+        <li>in den späteren Phasen die vom Werkzeug selbst erzeugten Zwischenergebnisse — die gefundenen Signale und die Prüfurteile, je bis 60.000 Zeichen, sowie der Schluss des bereits geschriebenen Berichts, damit die Synthese daran anknüpfen kann.</li>
+      </ul>
+      <p>Empfänger sind zwei: die Netlify Inc. als Hoster und Betreiberin des AI Gateway und die Anthropic PBC als Anbieterin des Sprachmodells, beide in den USA. Rechtsgrundlage: Art. 6 Abs. 1 lit. b und lit. f DSGVO — die Erbringung der von Ihnen ausgelösten Recherche.</p>
+
+      <h4>Die Websuche</h4>
+      <p>Dies ist der Punkt, an dem sich diese Seite von einem gewöhnlichen KI-Werkzeug unterscheidet, und deshalb steht die Warnung oben. Scout und Validator verwenden das serverseitige Websuch-Werkzeug von Anthropic: Das Modell formuliert aus Ihrem Thema Suchanfragen, lässt sie über die Suchinfrastruktur des Anbieters ausführen und ruft die gefundenen Seiten ab. Ihr Thema wird damit nicht nur verarbeitet, sondern <strong>gesucht</strong> — mit denselben Spuren, die eine Suchanfrage üblicherweise hinterlässt, bei einem Anbieter, den weder Sie noch der Betreiber dieser Seite kontrollieren. Der Validator sucht zusätzlich gezielt danach, ob die zuvor genannten Quellen überhaupt existieren; auch das sind echte Suchanfragen.</p>
+
+      <h4>Was mit dem Bericht geschieht</h4>
+      <p>Die Antworten werden gestreamt und im Arbeitsspeicher Ihres Browsers zusammengesetzt. Diese Seite legt sie nirgends ab: die Serverfunktion führt kein Log, keine Datenbank und keine Kopie. „Als Markdown herunterladen“ erzeugt die Datei lokal in Ihrem Browser, der PDF-Export nutzt die Druckfunktion Ihres Browsers — beides ohne Serverbeteiligung. <strong>Schließen Sie den Tab, ist alles fort</strong>, auch für Sie. Wer das Ergebnis behalten will, exportiert es vorher.</p>
+
+      <h4>Ihre Rechte</h4>
+      <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21), außerdem nach Art. 77 ein Beschwerderecht bei einer Aufsichtsbehörde. Anfragen an die unten genannte Adresse. Die Antwort fällt kurz aus, weil außer den Server-Logs nichts über Sie vorliegt.</p>
+      <p>Ein Vertreter in der Union nach Art. 27 DSGVO ist nicht benannt. Der Betreiber stützt sich auf die Ausnahme des Art. 27 Abs. 2 lit. a — gelegentliche Verarbeitung, keine umfangreiche Verarbeitung besonderer Datenkategorien, kein voraussichtliches Risiko für die Rechte und Freiheiten natürlicher Personen. Genau darum steht die Warnung am Anfang. Sollte die Einschätzung nicht mehr zutreffen, wird ein Vertreter benannt und hier genannt.</p>
+
+      <h4>Hinweis für Nutzerinnen und Nutzer aus Kalifornien</h4>
+      <p>Nach dem California Online Privacy Protection Act (CalOPPA, Cal. Bus. &amp; Prof. Code §§ 22575–22579): Erhoben werden Angaben zur Netzwerkaktivität in Gestalt der oben beschriebenen Server-Logs. Name, Anschrift, E-Mail-Adresse oder Telefonnummer werden nicht erhoben — die Seite besitzt kein Feld zu ihrer Eingabe. Thema und Suchfeld werden zur Durchführung der Recherche an den Modellanbieter übertragen und dort für die Websuche verwendet; von dieser Seite werden sie nicht aufbewahrt. Empfänger sind die Netlify Inc. und die Anthropic PBC; ein Verkauf oder eine Weitergabe zu Marketingzwecken findet nicht statt. Benutzerkonten und gespeicherte Profile gibt es nicht, es existiert also kein Datensatz zur Einsicht oder Änderung; ein Neuladen der Seite verwirft alles Eingegebene. <strong>Do Not Track:</strong> Diese Seite verfolgt ihre Besucher weder über die Zeit noch über fremde Websites hinweg und ändert ihr Verhalten bei einem Do-Not-Track-Signal deshalb nicht — es gibt kein Tracking, das abzuschalten wäre. Wesentliche Änderungen werden auf dieser Seite mit neuem Stand veröffentlicht; einen Verteiler für individuelle Benachrichtigungen gibt es nicht.</p>
+
+      <h4>Kinder</h4>
+      <p>Diese Seite richtet sich an Erwachsene in beruflichem oder wissenschaftlichem Zusammenhang. Sie wendet sich nicht an Kinder und erhebt wissentlich keine Daten von ihnen.</p>
+
+      <h4>Impressum</h4>
+      <p>Dr. Pantaleon Fassbender<br>16751 NE 5th Street<br>Williston, FL 32696<br>Vereinigte Staaten von Amerika<br>E-Mail: <a href="mailto:pantaleonfassbender@gmail.com">pantaleonfassbender@gmail.com</a></p>
+      <p>Für den Inhalt verantwortlich: Dr. Pantaleon Fassbender, Anschrift wie oben. Ein privates Projekt einer natürlichen Person, betrieben und gehostet in den Vereinigten Staaten; es steht kein Unternehmen dahinter, und die Seite enthält weder Werbung noch Sponsoring.</p>
+      <p>Unentgeltlich angeboten und ohne Gewähr. Die Umsetzung folgt einer Idee von Haugk und Leyh (2026), steht aber in keiner Verbindung zu den Autorinnen und Autoren, zur Zeitschrift oder zum Verlag. Die Ergebnisse sind heuristische Explorationen zur Hypothesenbildung: Signale können falsch, Quellen können erfunden und Einschätzungen können irreführend sein — auch dann, wenn der Validator sie hat passieren lassen. Prüfen Sie jede Quelle selbst, bevor Sie darauf etwas gründen.</p>
+
+      <p class="stand">Stand: 15. August 2026. Sollten diese Erklärung und das Verhalten der Seite jemals auseinandergehen, ist die Erklärung falsch und wird korrigiert — die Beschreibung folgt dem Code, nicht umgekehrt.</p>
+    `,
   },
   en: {
     subtitle: "Agentic AI research for strategic foresight — on companies, industries, products or technologies.",
@@ -357,7 +416,53 @@ const I18N = {
     errEmpty: "The agent returned no text response (empty response). Please retry the phase.",
     parseWarn: "Note: the output could not be read as structured signals — raw text is passed to the next phase.",
     noSignals: "No usable signals left — try again with a different search field or greater depth.",
-    footer: `Implementation based on an idea by: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>AI-generated content may contain errors. Results are heuristic explorations for hypothesis building — no substitute for human judgment and no decision automation. Research runs via the Netlify-native Anthropic interface (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:leo@twistersmanagementconsultingllc.com">leo@twistersmanagementconsultingllc.com</a>`,
+    footer: `Implementation based on an idea by: Haugk, S. &amp; Leyh, C. (2026). <i>Agentic Foresight: Potenziale autonomer KI-Agenten für die strategische Vorausschau in Unternehmen.</i> HMD Praxis der Wirtschaftsinformatik. <a href="https://doi.org/10.1365/s40702-026-01318-4" target="_blank" rel="noopener">doi:10.1365/s40702-026-01318-4</a><br>AI-generated content may contain errors. Results are heuristic explorations for hypothesis building — no substitute for human judgment and no decision automation. Research runs via the Netlify-native Anthropic interface (AI Gateway).<br>(C) 2026 - Dr. Pantaleon Fassbender - <a href="mailto:pantaleonfassbender@gmail.com">pantaleonfassbender@gmail.com</a> · <a href="#legal">Privacy and legal notice</a>`,
+    legalTitle: "Privacy and legal notice",
+    legal: `
+      <div class="warn"><strong>Before you enter a topic.</strong> This page does not merely think about your topic — it <strong>searches the open web for it</strong>. Your input is turned into search queries that go to the model provider's search infrastructure. So do not enter anything you would not type into a search engine: no unannounced plans, no contract internals, no client or customer names, nothing about identifiable individuals. The tool is built for markets, technologies, industries and published products; not for trade secrets.</div>
+
+      <h4>Who is responsible</h4>
+      <p>This site is operated by a private individual resident in the United States; the details are under “Legal notice” below. It is a personal project, not operated on behalf of any institution, employer or publisher. Because the site is reachable from the European Economic Area, the GDPR applies under Article 3(2); the operator is the controller within the meaning of Article 4(7).</p>
+
+      <h4>What this site is, technically</h4>
+      <p>A single static page with one server function. No user account, no login, no contact form, no newsletter. The page sets <strong>no cookies whatsoever</strong>, uses no analytics, tag manager, advertising or session-recording service, and writes nothing to local storage, session storage or IndexedDB. It loads <strong>nothing from third-party servers</strong> — no fonts, no scripts, no images; opening it contacts exactly one host: the one in your address bar. Only when you click a source in the report do you leave this site.</p>
+
+      <h4>Server logs</h4>
+      <p>Hosting is by Netlify. Like any web server, its infrastructure records the requests it serves — typically IP address, timestamp, URL requested, HTTP status, bytes transferred, and the browser's user-agent and referrer. This is technically unavoidable and is the only server-side collection; it serves operation and security, is not analysed by the operator, and is retained according to Netlify's own periods. Legal basis: Article 6(1)(f) GDPR. Operation and hosting are in the United States, so for readers in the EEA this is processing outside the EEA.</p>
+
+      <h4>What your input sets in motion</h4>
+      <p>Until you start a phase, nothing leaves your device. Starting one transmits:</p>
+      <ul>
+        <li>the topic, up to 300 characters;</li>
+        <li>the optional search field, up to 1,000 characters;</li>
+        <li>the language and the chosen research depth;</li>
+        <li>in the later phases, the tool's own intermediate results — the signals found and the verdicts on them, up to 60,000 characters each, together with the tail of the report written so far, so that the synthesis can continue from it.</li>
+      </ul>
+      <p>There are two recipients: Netlify Inc. as host and operator of the AI Gateway, and Anthropic PBC as provider of the language model, both in the United States. Legal basis: Article 6(1)(b) and (f) GDPR — performing the research you asked for.</p>
+
+      <h4>The web search</h4>
+      <p>This is where the page differs from an ordinary AI tool, and it is why the warning stands at the top. Scout and Validator use Anthropic's server-side web search tool: the model formulates search queries from your topic, has them executed through the provider's search infrastructure, and retrieves the pages it finds. Your topic is therefore not merely processed but <strong>searched for</strong> — leaving the traces a search query usually leaves, at a provider neither you nor the operator of this site controls. The Validator additionally searches on purpose to check whether the sources cited earlier exist at all; those are real queries too.</p>
+
+      <h4>What happens to the report</h4>
+      <p>Responses are streamed and assembled in your browser's memory. This site puts them nowhere: the server function keeps no log, no database and no copy. “Download as Markdown” creates the file locally in your browser, and the PDF export uses your browser's print function — neither involves the server. <strong>Close the tab and everything is gone</strong>, including for you. If you want to keep the result, export it first.</p>
+
+      <h4>Your rights</h4>
+      <p>You have the rights of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction (Art. 18), portability (Art. 20) and objection (Art. 21), and the right under Article 77 to complain to a supervisory authority. Requests go to the address below. The answer will be short, because apart from the server logs nothing about you is held here.</p>
+      <p>No representative in the Union has been designated under Article 27. The operator relies on the exemption in Article 27(2)(a) — occasional processing, no large-scale processing of special categories of data, and no likely risk to the rights and freedoms of natural persons. That is exactly why the warning stands at the top. If the assessment ever ceases to hold, a representative will be designated and named here.</p>
+
+      <h4>Notice for California residents</h4>
+      <p>Under the California Online Privacy Protection Act (CalOPPA, Cal. Bus. &amp; Prof. Code §§ 22575–22579): the information collected is internet or other network activity information, in the form of the server logs described above. No name, postal address, email address or telephone number is collected — the page has no field in which to enter them. The topic and search field are transmitted to the model provider to carry out the research and are used there for the web search; they are not retained by this site. The recipients are Netlify Inc. and Anthropic PBC; nothing is sold, rented or shared for marketing purposes. There are no accounts and no stored profiles, so there is no record to review or amend; reloading the page discards everything you entered. <strong>Do Not Track:</strong> this site does not track visitors over time or across third-party websites and therefore does not change its behaviour in response to a Do Not Track signal — there is no tracking to disable. Material changes are posted on this page with a revised date; there is no mailing list for individual notification.</p>
+
+      <h4>Children</h4>
+      <p>This page addresses adults in a professional or scholarly context. It is not directed to children and knowingly collects no information from them.</p>
+
+      <h4>Legal notice</h4>
+      <p>Dr. Pantaleon Fassbender<br>16751 NE 5th Street<br>Williston, FL 32696<br>United States<br>Email: <a href="mailto:pantaleonfassbender@gmail.com">pantaleonfassbender@gmail.com</a></p>
+      <p>Responsible for the content of this site: Dr. Pantaleon Fassbender, at the address above. A private project of a natural person, operated and hosted in the United States; there is no company behind it, and the page carries no advertising and no sponsorship.</p>
+      <p>Offered free of charge and without warranty of any kind. The implementation follows an idea by Haugk and Leyh (2026) but is not affiliated with the authors, the journal or the publisher. The results are heuristic explorations for hypothesis building: signals can be wrong, sources can be fabricated, and assessments can mislead — even where the Validator let them pass. Check every source yourself before building anything on it.</p>
+
+      <p class="stand">Effective 15 August 2026. Where this notice and the page's behaviour ever diverge, the notice is wrong and will be corrected — the description follows the code, not the other way round.</p>
+    `,
   },
 };
 let LANG = 'de';
@@ -376,11 +481,25 @@ function setLang(l){
   document.getElementById('topic').placeholder = t('topicPh');
   document.getElementById('focus').placeholder = t('focusPh');
   document.getElementById('footer').innerHTML = t('footer');
+  document.getElementById('legalSummary').textContent = t('legalTitle');
+  document.getElementById('legalBody').innerHTML = t('legal');
   ['scout','validator','synthesis'].forEach(p=>{
     const chip = document.getElementById('chip-'+p);
     if (STATE.status[p]==='idle') chip.textContent = t('stWaiting');
   });
 }
+
+/* Der Footer-Link zeigt auf #legal. Ein zugeklapptes <details> wuerde vom
+   Sprung allein nicht aufgehen, also hier ausdruecklich oeffnen. */
+function openLegalFromHash(){
+  if (location.hash !== '#legal') return;
+  const d = document.getElementById('legal');
+  if (!d) return;
+  d.open = true;
+  d.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+window.addEventListener('hashchange', openLegalFromHash);
+openLegalFromHash();
 
 /* ---------------- state ---------------- */
 const STATE = {
